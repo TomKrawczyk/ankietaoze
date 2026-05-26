@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ankiety Terenowe OZE – Polska Wieś 2026</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f0f4f8;
+    color: #1a1a2e;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, #1a6b3c 0%, #2d9e5f 100%);
+    color: white;
+    padding: 24px 20px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  .header h1 { font-size: 1.4em; font-weight: 700; margin-bottom: 4px; }
+  .header p { font-size: 0.85em; opacity: 0.85; }
+
+  /* NAV TABS */
+  .tabs {
+    display: flex;
+    overflow-x: auto;
+    background: #fff;
+    border-bottom: 3px solid #e0e7ef;
+    padding: 0 12px;
+    gap: 4px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .tab-btn {
+    padding: 14px 16px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 0.82em;
+    font-weight: 600;
+    color: #666;
+    white-space: nowrap;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -3px;
+    transition: all 0.2s;
+  }
+  .tab-btn.active {
+    color: #1a6b3c;
+    border-bottom-color: #1a6b3c;
+  }
+  .tab-btn:hover { color: #1a6b3c; }
+
+  /* CONTENT */
+  .tab-content { display: none; padding: 20px 16px; max-width: 700px; margin: 0 auto; }
+  .tab-content.active { display: block; }
+
+  /* ANKIETA CARD */
+  .survey-card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+    border-left: 5px solid #1a6b3c;
+  }
+  .survey-card.red { border-left-color: #c0392b; }
+  .survey-card.blue { border-left-color: #2980b9; }
+  .survey-card.orange { border-left-color: #e67e22; }
+
+  .survey-title {
+    font-size: 1.1em;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: #1a1a2e;
+  }
+  .survey-subtitle {
+    font-size: 0.8em;
+    color: #888;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  /* SEKCJE */
+  .section-label {
+    font-size: 0.75em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #1a6b3c;
+    margin: 18px 0 10px;
+  }
+  .section-label.red { color: #c0392b; }
+  .section-label.blue { color: #2980b9; }
+  .section-label.orange { color: #e67e22; }
+
+  /* PYTANIA */
+  .question {
+    margin-bottom: 16px;
+  }
+  .question label {
+    display: block;
+    font-size: 0.88em;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #333;
+    line-height: 1.4;
+  }
+  .question label span.req { color: #c0392b; }
+
+  input[type="text"],
+  input[type="tel"],
+  input[type="date"],
+  select,
+  textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid #dde3ec;
+    border-radius: 8px;
+    font-size: 0.88em;
+    color: #1a1a2e;
+    background: #f8fafc;
+    transition: border 0.2s;
+    -webkit-appearance: none;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #1a6b3c;
+    background: #fff;
+  }
+  textarea { min-height: 70px; resize: vertical; }
+
+  /* RADIO / CHECKBOX */
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1.5px solid #e8edf3;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 0.88em;
+  }
+  .option-item:hover { border-color: #1a6b3c; background: #f0faf4; }
+  .option-item input[type="radio"],
+  .option-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    accent-color: #1a6b3c;
+  }
+
+  /* SKALA */
+  .scale-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .scale-btn {
+    flex: 1;
+    min-width: 36px;
+    padding: 10px 4px;
+    border: 2px solid #dde3ec;
+    border-radius: 8px;
+    background: #f8fafc;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: 700;
+    text-align: center;
+    transition: all 0.15s;
+    color: #555;
+  }
+  .scale-btn:hover,
+  .scale-btn.selected {
+    background: #1a6b3c;
+    border-color: #1a6b3c;
+    color: white;
+  }
+  .scale-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.72em;
+    color: #999;
+    margin-top: 4px;
+  }
+
+  /* PODPIS */
+  .signature-box {
+    border: 2px dashed #ccc;
+    border-radius: 10px;
+    height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #aaa;
+    font-size: 0.85em;
+    cursor: pointer;
+    background: #fafafa;
+  }
+
+  /* INFO BOX */
+  .info-box {
+    background: #fff8e1;
+    border: 1px solid #ffe082;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 0.82em;
+    color: #795548;
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+  .info-box.red { background: #fdecea; border-color: #f5c6cb; color: #721c24; }
+  .info-box.blue { background: #e8f4fd; border-color: #b8d9f5; color: #1a5276; }
+
+  /* BTN */
+  .btn-submit {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, #1a6b3c, #2d9e5f);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1em;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 20px;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 12px rgba(26,107,60,0.3);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(26,107,60,0.35); }
+  .btn-submit.red { background: linear-gradient(135deg, #c0392b, #e74c3c); box-shadow: 0 4px 12px rgba(192,57,43,0.3); }
+  .btn-submit.blue { background: linear-gradient(135deg, #2980b9, #3498db); box-shadow: 0 4px 12px rgba(41,128,185,0.3); }
+  .btn-submit.orange { background: linear-gradient(135deg, #e67e22, #f39c12); box-shadow: 0 4px 12px rgba(230,126,34,0.3); }
+
+  /* BADGE */
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.72em;
+    font-weight: 700;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .badge.green { background: #d4edda; color: #155724; }
+  .badge.red { background: #f8d7da; color: #721c24; }
+  .badge.blue { background: #d1ecf1; color: #0c5460; }
+  .badge.orange { background: #fff3cd; color: #856404; }
+
+  /* PROGRESS */
+  .progress-bar {
+    height: 4px;
+    background: #e0e7ef;
+    border-radius: 4px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #1a6b3c, #2d9e5f);
+    transition: width 0.4s;
+  }
+
+  /* DIVIDER */
+  hr.divider {
+    border: none;
+    border-top: 1px solid #eef1f6;
+    margin: 18px 0;
+  }
+
+  /* FOOTER */
+  .form-footer {
+    text-align: center;
+    font-size: 0.75em;
+    color: #aaa;
+    margin-top: 20px;
+    padding-bottom: 30px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📋 Ankiety Terenowe OZE</h1>
+  <p>Polska Wieś 2026 — Narzędzia dla ankietera</p>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('tab1')">1. Diagnoza PV</button>
+  <button class="tab-btn" onclick="showTab('tab2')">2. Pompa ciepła</button>
+  <button class="tab-btn" onclick="showTab('tab3')">3. Magazyn energii</button>
+  <button class="tab-btn" onclick="showTab('tab4')">4. Ogólna OZE</button>
+</div>
+
+<!-- ================================================================ -->
+<!-- ANKIETA 1 – DIAGNOZA FOTOWOLTAIKI -->
+<!-- ================================================================ -->
+<div id="tab1" class="tab-content active">
+  <div class="survey-card">
+    <div class="survey-title">☀️ Ankieta diagnostyczna – Fotowoltaika <span class="badge green">PV</span></div>
+    <div class="survey-subtitle">Cel: identyfikacja problemów z rozliczeniem i efektywnością instalacji PV</div>
+
+    <div class="progress-bar"><div class="progress-fill" style="width:0%" id="p1"></div></div>
+
+    <div class="info-box">
+      ⚡ <strong>Instrukcja dla ankietera:</strong> Ankietę wypełniamy tylko dla gospodarstw posiadających lub rozważających instalację PV. Czas wypełnienia: ok. 8–12 minut.
+    </div>
+
+    <!-- DANE PODSTAWOWE -->
+    <div class="section-label">📍 Dane respondenta</div>
+
+    <div class="question">
+      <label>Miejscowość / gmina <span class="req">*</span></label>
+      <input type="text" placeholder="np. Kłodawa, gm. Wieruszów">
+    </div>
+    <div class="question">
+      <label>Typ gospodarstwa</label>
+      <div class="options">
+        <label class="option-item"><input type="radio" name="typ1"> Dom jednorodzinny</label>
+        <label class="option-item"><input type="radio" name="typ1"> Gospodarstwo rolne</label>
+        <label class="option-item"><input type="radio" name="typ1"> Agroturystyka / firma</label>
+        <label class="option-item"><input type="radio" name="typ1"> Inne</label>
+      </div>
+    </div>
+
+    <!-- INSTALACJA -->
+    <div class="section-label">🔆 Instalacja fotowoltaiczna</div>
+
+    <div class="question">
+      <label>Czy posiada Pan/Pani instalację PV? <span class="req">*</span></label>
+      <div class="options">
+        <label class="option-item"><input type="radio" name="ma_pv"> Tak, czynna</label>
+        <label class="option-item"><input type="radio" name="ma_pv"> Tak, ale mam problemy z działaniem</label>
+        <label class="option-item"><input type="radio" name="ma_pv"> Nie, ale planuję</label>
+        <label class="option-item"><input type="radio" name="ma_pv"> Nie i nie planuję</label>
+      </div>
+    </div>
+
+    <div class="question">
+      <label>Rok montażu instalacji</label>
+      <select>
+        <option value="">— wybierz —</option>
+        <option>przed 2019</option>
+        <option>2019</option><option>2020</option><option>2021</option>
+        <option>2022</option><option>2023</option><option>2024</option><option>2025</option>
+      </select>
+    </div>
+
+    <div class="question">
+      <label>Moc instalacji (kWp)</label>
+      <select>
+        <option value="">— nie wiem —</option>
+        <option>do 3 kWp</option>
+        <option>3–6 kWp</option>
+        <option>6–10 kWp</option>
+        <option>10–20 kWp</option>
+        <option>powyżej 20 kWp</option>
+      </select>
+    </div>
+
+    <div class="question">
+      <label>Obecny system rozliczenia</label>
+      <div class="options">
+        <label class="option-item"><input type="radio" name="rozl1"> Net-metering (stary, do 2022)</label>
+        <label class="option-item"><input type="radio" name="rozl1"> Net-billing (od 2022)</label>
+        <label class="option-item"><input type="radio" name="rozl1"> Nie wiem</label>
+      </div>
+    </div>
+
+    <!-- PROBLEMY -->
+    <div class="section-label red">⚠️ Problemy i bolączki</div>
+
+    <div class="info-box red">
+      🔴 Ta sekcja jest kluczowa — notuj dokładnie słowa respondenta, nie interpretuj.
+    </div>
+
+    <div class="question">
+      <label>Czy zauważył/a Pan/Pani wzrost rachunków mimo posiadania PV? <span class="req">*</span></label>
+      <div class="options">
+        <label class="option-item"><input type="radio" name="rachunki"> Tak, znaczny wzrost</label>
+        <label class="option-item"><input type="radio" name="rachunki"> Tak, nieznaczny wzrost</label>
+        <label class="option-item"><input type="radio" name="rachunki"> Rachunki bez zmian</label>
+        <label class="option-item"><input type="radio" name="rachunki"> Nie, są niższe niż przed PV</label>
+      </div>
+    </div>
+
+    <div class="question">
+      <label>Jakie problemy wystąpiły z instalacją? (można zaznaczyć kilka)</label>
+      <div class="options">
+        <label class="option-item"><input type="checkbox"> Awaria falownika</label>
+        <label class="option-item"><input type="checkbox"> Błędy odczytu licznika</label>
+        <label class="option-item"><input type="checkbox"> Brak kontaktu z instalatorem</label>
+        <label class="option-item"><input type="checkbox"> Problemy z rozliczeniem w sieci</label>
+        <label class="option-item"><input type="checkbox"> Fizyczne uszkodzenie paneli</label>
+        <label class="option-item"><input type="checkbox"> Brak problemów</label>
+      </div>
+    </div>
+
+    <div class="question">
+      <label>Miesięczny rachunek za prąd PRZED PV (orientacyjnie)</label>
+      <select>
+        <option value="">— wybierz —</option>
+        <option>do 200 zł</option><option>200–400 zł</option>
+        <option>400–700 zł</option><option>powyżej 700 zł</option>
+      </select>
+    </div>
+
+    <div class="question">
+      <label>Miesięczny rachunek za prąd TERAZ</label>
+      <select>
+        <option value="">— wybierz —</option>
+        <option>do 100 zł (opłaty stałe)</option>
+        <option>100–200 zł</option><option>200–400 zł</option>
+        <option>400–700 zł</option><option>powyżej 700 zł</option>
+      </select>
+    </div>
+
+    <div class="question">
+      <label>Jak ocenia Pan/Pani swoją inwestycję w PV? (1=rozczarowanie, 5=pełna satysfakcja)</label>
+      <div class="scale-row" id="scale1">
+        <div class="scale-btn" onclick="selectScale('scale1',this)">1</div>
+        <div class="scale-btn" onclick="selectScale('scale1',this)">2</div>
+        <div class="scale-btn" onclick="selectScale('scale1',this)">3</div>
+        <div class="scale-btn" onclick="selectScale('scale1',this)">4</div>
+        <div class="scale-btn" onclick="selectScale('scale1',this)">5</div>
+      </div>
+      <div class="scale-labels"><span>Rozczarowanie</span><span>Pełna satysfakcja</span></div>
+    </div>
+
+    <!-- ZAINTERESOWANIE -->
+    <div class="section-label">💡 Potrzeby i zainteresowanie</div>
+
+    <div class="question">
+      <label>Czy jest Pan/Pani zainteresowany/a bezpłatnym audytem instalacji?</label>
+      <div class="options">
+        <label class="option-item"><input type="radio" name="audyt1"> Tak, jak najszybciej</label>
+        <label class="option-item"><input type="radio" name="audyt1"> Tak, ale nie teraz</label>
+        <label class="option-item"><input type="radio" name="audyt1"> Nie wiem, chcę więcej info</label>
+        <label class="option-item"><input type="radio" name="audyt1"> Nie</label>
+      </div>
+    </div>
+
+    <div class="question">
+      <label>Numer telefonu do kontaktu (opcjonalnie)</label>
+      <input type="tel" placeholder="np. 600 100 200">
+    </div>
+
+    <div class="question">
+      <label>Dodatkowe uwagi ankietera</label>
+      <textarea placeholder="Notatki, specyfika sytuacji, nastrój rozmówcy..."></textarea>
+    </div>
+
+    <button class="btn-submit" onclick="saveForm(1)">✅ Zapisz ankietę</button>
+    <div class="form-footer">4ECO – ankieta terenowa v2.0 | PV-DIAG</div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- ANKIETA 2 – POMPA CIEPŁA -->
+<!-- ================================================================ -->
+<div id="tab2" class="tab-content">
+  <div class="survey-card" style="border-left-color: #2980b9;">
+    <div class="survey-title">🌡️ Ankieta – Pompa ciepła <span class="badge blue">PC</span></div>
+    <div class="survey-subtitle">Cel: diagnoza kosztów ogrzewania i kwalifikacja do wymiany źródła ciepła</div>
+
+    <div class="info-box blue">
+      🔵 <strong>Instrukcja:</strong> Idealna dla domów opalanych węglem, olejem lub gazem. Pytaj o rachunki za ogrzewanie i wiek kotła.
+    </div>
+
+    <div class="section-label blue">📍 Dane i charakterystyka budynku</div>
+
+    <div class="question">
+      <label>Miejscowość <span class="req">*</span></label>
+      <input type="text" placeholder="np. Sępólno Krajeńskie">
+    </div>
+
+    <div class="question">
+      <label>Rok budowy domu (orientacyjnie)</label>
+      <select>
+        <option value="">— wybierz —</option>
+        <option>przed 1970</option><option>1970–1990</option>
+        <option>1990–2005</option><option>2005–2015</option><option>po 2015</option>
+      </select>
+    </div>
+
+    <div class="question">
+      <label>Powierzchnia ogrzewana (m²)</label>
+      <select>
+        <option value="">— wybierz —</option>
+        <option>do 80 m²</option><option>80–120 m²</option>
+        <option>120–180 m²</option><option>180–250 m²</option><option>powyżej 250 m²</option>
+      </select>
+    </div>
+
+    <div class="question">
+      <label>Typ instalacji grzewczej</label>
+      <div class="options">
+        <label class="option-item"><input type="radio" name="grzew"> Kaloryfery (grzejniki)</label>
+        <label class="option-item"><input type="radio" name="grzew"> Ogrzewanie podłogowe</label>
+        <label class="option-item"><input type="radio" name="grzew"> Mieszane (podłoga + grzejniki)</label>
+        <label class="option-item"><input type="radio" name="grzew"> Nie wiem</label>
+      </div>
+    </div>
+
+    <div class="section-label blue">🔥 Obecne źródło ciepła</div>
+
+    <div class="question">
+      <label>Czym ogrzewa Pan/Pani dom? <span class="req">*</span></label>
+      <div class="options">
+        <label class="option-item"><input type="checkbox"> Kocioł węglowy / ekogroszek</label>
+        <label class="option-item"><input type="checkbox"> Kocioł gazowy</label>
+        <label class="option-item"><input type="checkbox"> Olejowy</label>
+        <label class="option-item"><input type="checkbox"> Elektryczny</label>
+        <label class="option-item"><input type="checkbox"> Pompa ciepła (już mam)</label>
+        <label class="option-item"><input type="checkbox"> Piec kaflowy / kominek</label>
+      </div>
+    </div>
+
+    <div class="question">
+      <label>Wiek obecnego kotła / pieca</label>
+      <select>
+        <option value="">— wybierz —</option>
+        <option>do 5 lat</option><option>5–10 lat</option>
+        <option>10–20 lat</option><option>powyżej 20 lat</option>
+      </select>
+    </div>
+
+    <div class="question">
+      <label>Roczny koszt ogrzewania (orientacyjnie)</label>
+      <select>
+        <option value="">— nie wiem —</option>
+        <option>do 3 000 zł</option><option>3 000–6 000 zł</option>
+        <option>6 000–10 000 zł</option><option>powyżej 10 000 zł</option>
+      </select>
+    </div>
+
+    <div class="section-label blue">⚠️ Problem – rosnące koszty</div>
+
+    <div class="question">
+      <label>Jak zmieniły się koszty ogrzewania w ostatnich 3 latach? <span class="req">*</span></label>
+      <div class="options">
+        <label class="option-item"><input type="radio" name="koszty_pc"> Wzrosły znacznie (ponad 50%)</label>
+        <label class="option-item"><input type="radio" name="koszty_pc"> Wzrosły umiarkowanie</label>
+        <label class="option-item"><input type="radio" name="koszty_pc"> Bez większych zmian</label>
+        <label class="option-item"><input type="radio" name="koszty_pc"> Spadły</label>
+      </div>
+    </div>
+
+    <div class="question">
+      <label>Czy słyszał/a Pan/Pani o programie dofinansowań do pomp ciepła?</label>
+      <div class="options">
+        <label class="option-item"><input type="radio" name="dof_pc"> Tak i składałem/am wniosek</label>
+        <label class="option-item"><input type="radio" name="dof_pc"> Tak, ale nie wiem jak skorzystać</label>
+        <label class="option-item"><input type="radio" name="dof_pc"> Słyszałem/am, ale nie interesuję się</label>
+        <label class="option-item"><input type="radio" name="dof_pc"> Nie słyszałem/am</label>
+      </div>
+    </div>
+
+    <div class="question">
+      <label>Czy budynek był ocieplany?</label>
+      <div class="options">
+        <label class="option-item"><input type="radio" name="ociepl"> Tak, kompleksowo</label>
+        <label class="option-item"><input type="radio" name="ociepl"> Częściowo</label>
+        <label class="option-item"><input type="radio" name="ociepl"> Nie</label>
+        <label class="option-item"><input type="radio" name="ociepl"> Planujemy</label>
+      </div>
+    </div>
+
+    <div class="section-label blue">📞 Zainteresowanie i kontakt</div>
+
+    <div class="question">
+      <label>Zainteresowanie bezpłatną wyceną pompy ciepła</label>
+      <div class="options">
+        <label class="option-item"><input type="radio" name="zaint_pc"> Tak, chętnie poznam ofertę</label>
+        <label class="option-item"><input type="radio" name="zaint_pc"> Może, potrzebuję więcej czasu</label>
+        <label class="option-item"><input type="radio" name="zaint_pc"> Nie w tej chwili</label>
+        <label class="option-item"><input type="radio" name="zaint_pc"> Zdecydowanie nie</label>
+      </div>
+    </div>
+
+    <div class="question">
+      <label>Telefon kontaktowy</label>
+      <input type="tel" placeholder="opcjonalnie">
+    </div>
+
+    <div class="question">
+      <label>Notatki ankietera</label>
+      <textarea placeholder="Specyfika budynku, nastrój rozmówcy, potencjał..."></textarea>
+    </div>
+
+    <button class="btn-submit blue" onclick="saveForm(2)">✅ Zapisz ankietę</button>
+    <div class="form-footer">4ECO – ankieta terenowa v2.0 | PC-DIAG</div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- ANKIETA 3 – MAGAZYN ENERGII -->
+<!-- ================================================================ -->
+<div id="tab3" class="tab-content">
+  <div class="survey-card" style="border-left-color: #e67e22;">
+    <div class="survey-title">🔋 Ankieta – Magazyn energii <span class="badge orange">ME</span></div>
+    <div class="survey-subtitle">Cel: kwalifikacja do programu „Mój Magazyn" i identyfikacja potrzeb magazynowania</div>
+
+    <div class="info-box" style="background:#fff3cd;border-color:#ffe082;color:#856404;">
+      🟡 <strong>Uwaga:</strong> Ankieta skierowana do osób z PV. Warunek min. dla programu: instalacja PV min. 2 kWp.
+    </div>
+
+    <div class="section-label orange">📍 Profil respondenta</div>
+
+    <div class="question">
+      <label>Miejscowość <span class="req">*</span></label>
+      <input type="text" placeholder="np. Wieluń">
+    </div>
+
+    <div class="question">
+      <label>Czy posiada instalację PV? <span class="req">*</span></label>
+      <div class="options">
+        <label class="option-item"><input type="radio" name="pv_mag"> Tak</label>
+        <label class="option-item"><input type="radio" name="pv_mag"> Nie (koniec ankiety)</label>
+      </div>
+    </div>
+
+    <div class="question">
+      <label>Moc PV (kWp)</label>
+      <select>
+        <option value="">— wybierz —</option>
+        <option>poniżej 3 kWp</option><option>3–6 kWp</option>
+        <option>6–10 kWp</option><option>powyżej 10 kWp</option>
+      </select>
+    </div>
+
+    <div class="section-label orange">⚡ Autokonsumpcja i straty</div>
+
+    <div class="question">
+      <label>Jak dużo energii z PV zużywa Pan/Pani na bieżąco (w domu)?</label>
+      <div class="options">
+        <label class="option-item"><input type="radio" name="auto"> Większość (ponad 60%)</label>
+        <label class="option-item"><input type="radio" name="auto"> Połowę mniej więcej</label>
+        <label class="option-item"><input type="radio" name="auto"> Małą część (mniej niż 30%)</label>
+        <label class="option-item"><input type="radio" name="auto"> Nie wiem</label>
+      </div>
+    </div>
+
+    <div class="question">
+      <label>Czy wie Pan/Pani po ile skupuje sieć nadwyżki energii? <span class="req">*</span></label>
+      <div class="options">
+        <label class="option-item"><input type="radio" name="cena_odkup"> Tak, i uważam że to za mało</label>
+        <label class="option-item"><input type="radio" name="cena_odkup"> Tak, jestem zadowolony/a</label>
+        <label class="option-item"><input type="radio" name="cena_odkup"> Nie wiem ile dostaje</label>
+        <label class="option-item"><input type="radio" name="cena_odkup"> Nie interesuję się tym</label>
+      </div>
+    </div>
+
+    <div class="question">
+      <label>Czy zdarzają się przerwy w dostawie prądu w Pana/Pani okolicy?</label>
+      <div class="options">
+        <label class="option-item"><input type="radio" name="przerwy"> Tak, kilka razy w roku</label>
+        <label class="option-item"><input type="radio" name="przerwy"> Rzadko (raz na 1–2 lata)</label>
+        <label class="option-item"><input type="radio" name="przerwy"> Praktycznie nigdy</label>
+      </div>
+    </div>
+
+    <div class="section-label orange">🏛️ Dofinansowania i plany</div>
+
+    <div class="question">
+      <label>Czy słyszał/a Pan/Pani o programie „Mój Magazyn Energii"?</label>
+      <div class="options">
+        <label class="option-item"><input type="radio" name="prog_mag"> Tak, złożyłem/am wniosek</label>
+        <label class="option-item"><input type="radio" name="prog_mag"> Słyszałem/am, ale nie wiem jak skorzystać</label>
+        <label class="option-item"><input type="radio" name="prog_mag"> Nie słyszałem/am</label>
+      </div>
+    </div>
+
+    <div class="question">
+      <label>Jaką pojemność magazynu uważa Pan/Pani za wystarczającą?</label>
+      <div class="options">
+        <label class="option-item"><input type="radio" name="pojemnosc"> Do 5 kWh (mały dom)</label>
+        <label class="option-item"><input type="radio" name="pojemnosc"> 5–10 kWh (średni dom)</label>
+        <label class="option-item"><input type="radio" name="pojemnosc"> Powyżej 10 kWh (duże zużycie)</label>
+        <label class="option-item"><input type="radio" name="pojemnosc"> Nie wiem, potrzebuję doradcy</label>
+      </div>
+    </div>
+
+    <div class="question">
+      <label>Poziom zainteresowania magazynem energii (1=brak, 5=bardzo duże)</label>
+      <div class="scale-row" id="scale3">
+        <div class="scale-btn" onclick="selectScale('scale3',this)">1</div>
+        <div class="scale-btn" onclick="selectScale('scale3',this)">2</div>
+        <div class="scale-btn" onclick="selectScale('scale3',this)">3</div>
+        <div class="scale-btn" onclick="selectScale('scale3',this)">4</div>
+        <div class="scale-btn" onclick="selectScale('scale3',this)">5</div>
+      </div>
+      <div class="scale-labels"><span>Brak zainteresowania</span><span>Bardzo duże</span></div>
+    </div>
+
+    <div class="question">
+      <label>Budżet który rozważa Pan/Pani na magazyn</label>
+      <select>
+        <option value="">— nie wiem jeszcze —</option>
+        <option>do 10 000 zł (po dofinansowaniu)</option>
+        <option>10 000–20 000 zł</option>
+        <option>20 000–35 000 zł</option>
+        <option>powyżej 35 000 zł</option>
+      </select>
+    </div>
+
+    <div class="question">
+      <label>Telefon kontaktowy</label>
+      <input type="tel" placeholder="opcjonalnie">
+    </div>
+
+    <div class="question">
+      <label>Notatki ankietera</label>
+      <textarea placeholder="Potencjał, konkretne potrzeby, termin kontaktu..."></textarea>
+    </div>
+
+    <button class="btn-submit orange" onclick="saveForm(3)">✅ Zapisz ankietę</button>
+    <div class="form-footer">4ECO – ankieta terenowa v2.0 | MAG-DIAG</div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<!-- ANKIETA 4 – OGÓLNA OZE / NOWY KLIENT -->
+<!-- ================================================================ -->
+<div id="tab4" class="tab-content">
+  <div class="survey-card" style="border-left-color: #8e44ad;">
+    <div class="survey-title">🌿 Ankieta ogólna – Nowy klient OZE <span class="badge" style="background:#ede7f6;color:#4a148c;">OZE</span></div>
+    <div class="survey-subtitle">Cel: pełna diagnoza potrzeb energetycznych i kwalifikacja do produktów OZE</div>
+
+    <div class="info-box">
+      💡 <strong>Instrukcja:</strong> Ankieta dla nowych kontaktów bez żadnych instalacji OZE. Zbiera pełny profil energetyczny do przekazania doradcy.
+    </div>
+
+    <div class="section-label" style="color:#8e44ad;">📍 Podstawowe dane</div>
+
+    <div class="question">
+      <label>Imię (inicjał) i miejscowość <span class="req">*</span></label>
+      <input type="text" placeholder="np. J.K., Radomsko">
+    </div>
+
+    <div class="question">
+      <label>Data wypełnienia</label>
+      <input type="date">
+    </div>
+
+    <div class="question">
+      <label>Typ obiektu <span class="req">*</span></label>
+      <div class="options">
+        <label class="option-item"><input type="radio" name="typ4"> Dom jednorodzinny</label>
+        <label class="option-item"><input type="radio" name="typ4"> Dom z firmą / gospodarstwem</label>
+        <label class="option-item"><input type="radio" name="typ4"> Tylko działalność gospodarcza</label>
+        <label class="option-item"><input type="radio" name="typ4"> Blok / mieszkanie</label>
+      </div>
+    </div>
+
+    <div class="section-label" style="color:#8e44ad;">💰 Profil energetyczny</div>
+
+    <div class="question">
+      <label>Miesięczny rachunek za prąd <span class="req">*</span></label>
+      <select>
+        <option value="">— wybierz —</option>
+        <option>do 200 zł</option><option>200–400 zł</option>
+        <option>400–700 zł</option><option>700–1200 zł</option>
+        <option>powyżej 1200 zł</option>
+      </select>
+    </div>
+
+    <div class="question">
+      <label>Miesięczny koszt ogrzewania (poza latem)</label>
+      <select>
+        <option value="">— wybierz —</option>
+        <option>do 300 zł</option><option>300–600 zł</option>
+        <option>600–1000 zł</option><option>powyżej 1000 zł</option>
+      </select>
+    </div>
+
+    <div class="question">
+      <label>Czy w domu jest ciepła woda użytkowa (CWU) z kotła / bojlera?</label>
+      <div class="options">
+        <label class="option-item"><input type="radio" name="cwu"> Tak, elektryczny bojler</label>
+        <label class="option-item"><input type="radio" name="cwu"> Tak, gazowy / węglowy</label>
+        <label class="option-item"><input type="radio" name="cwu"> Tak, przepływowy gazowy</label>
+        <label class="option-item"><input type="radio" name="cwu"> Nie / inne</label>
+      </div>
+    </div>
+
+    <div class="question">
+      <label>Czy posiada Pan/Pani samochód elektryczny lub planuje zakup?</label>
+      <div class="options">
+        <label class="option-item"><input type="radio" name="ev"> Mam już EV</label>
+        <label class="option-item"><input type="radio" name="ev"> Planuję w ciągu 2 lat</label>
+        <label class="option-item"><input type="radio" name="ev"> Rozważam, ale nie wiem kiedy</label>
+        <label class="option-item"><input type="radio" name="ev"> Nie planuję</label>
+      </div>
+    </div>
+
+    <div class="section-label" style="color:#8e44ad;">🌱 Zainteresowanie OZE</div>
+
+    <div class="question">
+      <label>Które rozwiązania OZE interesują Pana/Panią? (zaznacz wszystkie)</label>
+      <div class="options">
+        <label class="option-item"><input type="checkbox"> ☀️ Fotowoltaika</label>
+        <label class="option-item"><input type="checkbox"> 🌡️ Pompa ciepła</label>
+        <label class="option-item"><input type="checkbox"> 🔋 Magazyn energii</label>
+        <label class="option-item"><input type="checkbox"> 🏠 Termoizolacja</label>
+        <label class="option-item"><input type="checkbox"> 🚿 Solary (CWU)</label>
+        <label class="option-item"><input type="checkbox"> Żadne na razie</label>
+      </div>
+    </div>
+
+    <div class="question">
+      <label>Główna motywacja do OZE <span class="req">*</span></label>
+      <div class="options">
+        <label class="option-item"><input type="radio" name="motyw"> Oszczędności finansowe</label>
+        <label class="option-item"><input type="radio" name="motyw"> Niezależność energetyczna</label>
+        <label class="option-item"><input type="radio" name="motyw"> Ekologia / środowisko</label>
+        <label class="option-item"><input type="radio" name="motyw"> Dofinansowania / moda</label>
+        <label class="option-item"><input type="radio" name="motyw"> Brak motywacji</label>
+      </div>
+    </div>
+
+    <div class="question">
+      <label>Czy ktoś w okolicy ma OZE i jak to ocenia?</label>
+      <div class="options">
+        <label class="option-item"><input type="radio" name="sasiedzi"> Tak, i są zadowoleni — to mnie zachęca</label>
+        <label class="option-item"><input type="radio" name="sasiedzi"> Tak, ale słyszałem/am o problemach</label>
+        <label class="option-item"><input type="radio" name="sasiedzi"> Nie znam nikogo z OZE</label>
+        <label class="option-item"><input type="radio" name="sasiedzi"> Nie zwracam uwagi na sąsiadów</label>
+      </div>
+    </div>
+
+    <div class="question">
+      <label>Horyzont decyzji inwestycyjnej</label>
+      <div class="options">
+        <label class="option-item"><input type="radio" name="horyz"> Do 3 miesięcy</label>
+        <label class="option-item"><input type="radio" name="horyz"> 3–12 miesięcy</label>
+        <label class="option-item"><input type="radio" name="horyz"> Ponad rok</label>
+        <label class="option-item"><input type="radio" name="horyz"> Nie planuję inwestować</label>
+      </div>
+    </div>
+
+    <div class="section-label" style="color:#8e44ad;">📞 Przekazanie do doradcy</div>
+
+    <div class="question">
+      <label>Temperatura leada (ocena ankietera) <span class="req">*</span></label>
+      <div class="options">
+        <label class="option-item" style="border-color:#c0392b;background:#fdecea;">
+          <input type="radio" name="temp"> 🔴 Zimny — brak zainteresowania
+        </label>
+        <label class="option-item" style="border-color:#e67e22;background:#fff8f0;">
+          <input type="radio" name="temp"> 🟡 Letni — potrzebuje edukacji
+        </label>
+        <label class="option-item" style="border-color:#27ae60;background:#f0faf4;">
+          <input type="radio" name="temp"> 🟢 Ciepły — otwarty na ofertę
+        </label>
+        <label class="option-item" style="border-color:#1a6b3c;background:#e8f5ed;">
+          <input type="radio" name="temp"> 🔥 Gorący — gotowy do spotkania
+        </label>
+      </div>
+    </div>
+
+    <div class="question">
+      <label>Telefon do kontaktu</label>
+      <input type="tel" placeholder="opcjonalnie">
+    </div>
+
+    <div class="question">
+      <label>Preferowany termin kontaktu</label>
+      <input type="text" placeholder="np. środa po 17:00, weekendy rano">
+    </div>
+
+    <div class="question">
+      <label>Uwagi dla doradcy</label>
+      <textarea placeholder="Co powiedział/a, jak reagował/a, kluczowe obiekcje lub potrzeby..."></textarea>
+    </div>
+
+    <button class="btn-submit" style="background:linear-gradient(135deg,#8e44ad,#9b59b6);box-shadow:0 4px 12px rgba(142,68,173,0.3);" onclick="saveForm(4)">✅ Zapisz ankietę</button>
+    <div class="form-footer">4ECO – ankieta terenowa v2.0 | OZE-FULL</div>
+  </div>
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function selectScale(groupId, btn) {
+  document.querySelectorAll('#' + groupId + ' .scale-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function saveForm(num) {
+  const names = ['PV-DIAG', 'PC-DIAG', 'MAG-DIAG', 'OZE-FULL'];
+  const ts = new Date().toLocaleString('pl-PL');
+  alert(`✅ Ankieta ${names[num-1]} zapisana!\n🕐 ${ts}\n\nDane gotowe do przesłania do systemu.`);
+}
+</script>
+</body>
+</html>
